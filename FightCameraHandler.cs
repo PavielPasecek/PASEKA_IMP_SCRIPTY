@@ -84,7 +84,7 @@ public class FightCameraHandler : MonoBehaviour
             targetPos = attacker.transform.position + new Vector3(-1f, 1.2f, 2.5f);
             lookAtPos = target.transform.position;
         }
-        else if (currentView == CameraView.Defeat) // pohyb protivníka, který zrovna útočí
+        else if (currentView == CameraView.Defeat) // pohled na hráče, který prohrál
         {
             float orbitX = Mathf.Sin(Time.time * 0.02f) * 1.5f;
             float orbitZ = Mathf.Abs(Mathf.Sin(Time.time * 0.02f));
