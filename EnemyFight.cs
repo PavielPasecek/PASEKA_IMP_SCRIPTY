@@ -42,7 +42,19 @@ public class EnemyFight : MonoBehaviour
     public List<ParticleSystem> StatusParticles;
     private Animator animator;
 
+    public Sprite Icon;
+
     int statusCounter = 0;
+
+    public enum TypEnemaku {
+        Red,
+        Blue,
+        Violet,
+        Yellow,
+        Green
+    }
+
+    public TypEnemaku TypEnemaka;
     private void Awake()
     {
         animator = CharacterModel.GetComponent<Animator>();
@@ -50,6 +62,35 @@ public class EnemyFight : MonoBehaviour
     }
     public void StartEnemy(AttackHandler a)
     {
+        switch(TypEnemaka)
+        {
+            case TypEnemaku.Red:
+            {
+                    MaxHP = Mathf.RoundToInt(10 * Mathf.Pow((1.074f), (Level - 1)));
+                    break;
+            }
+            case TypEnemaku.Blue:
+            {
+                    MaxHP = Mathf.RoundToInt(15 * Mathf.Pow((1.06f), (Level - 1)));
+                    break;
+            }
+            case TypEnemaku.Yellow:
+            {
+                    MaxHP = Mathf.RoundToInt(8 * Mathf.Pow((1.05f), (Level - 1)));
+                    break;
+            }
+            case TypEnemaku.Violet:
+            {
+                    MaxHP = Mathf.RoundToInt(10 * Mathf.Pow((1.082f), (Level - 1)));
+                    break;
+            }
+            case TypEnemaku.Green:
+            {
+                    MaxHP = Mathf.RoundToInt(15 * Mathf.Pow((1.09f), (Level - 1)));
+                    break;
+            }
+        }
+        MaxStamina = Mathf.RoundToInt(20 + (1.03f * (Level - 1)));
         Stamina = MaxStamina;
         CurrentHP = MaxHP;
         FightAttackHandler = a;
@@ -76,7 +117,8 @@ public class EnemyFight : MonoBehaviour
         int pocetOpakovani = 0;
         do
         {
-            idUtoku = Utoky[Random.Range(0, Utoky.Count - 1)];
+            idUtoku = Utoky[Random.Range(0, Utoky.Count)];
+            print(idUtoku);
             pocetOpakovani++;
         }
         while ((FightAttackHandler.Stamina(idUtoku) > Stamina) && pocetOpakovani < 10);
@@ -143,10 +185,13 @@ public class EnemyFight : MonoBehaviour
             aktualniStatus = FightAttackHandler.GetStatus(attackindex);
             statusCounter = Random.Range(4, 7);
         }
-        float multi = Guard ? 0.7f : 1;
+        float gu = Guard ? 0.9f : 1;
         int damage = FightAttackHandler.GetDamage(attackindex);
-        int vypocet = Mathf.FloorToInt(((damage + (damage * (lvl * 0.2f)))) * multiplier * multi);
-        CurrentHP -= vypocet;
+        int vypocet = Mathf.RoundToInt(Mathf.Pow((Mathf.Abs((float)damage) / 10f), (1 + (float)lvl / 20f)) * gu * multiplier); // výpočet poškození
+        if (damage != 0)
+        {
+            CurrentHP -= vypocet * (damage / Mathf.Abs(damage));
+        }
         CurrentHP = Mathf.Clamp(CurrentHP, 0, MaxHP);
         SetGUI();
         if (CurrentHP <= 0)
@@ -244,32 +289,17 @@ public class EnemyFight : MonoBehaviour
     }
     public void SpustAttackAnimaci(int index)
     {
-        animator.SetBool("ReturnToIdle", false);
-        animator.SetBool("Walk", false);
         animator.SetInteger("AttackIndex", index);
-        animator.SetBool("Attack", true);
+        animator.SetTrigger("Attack");
     }
-
-    public void WalkAnimace()
-    {
-        animator.SetBool("Walk", true);
-        animator.SetBool("Attack", false);
-    }
-    public void IdleCeka()
-    {
-        animator.SetBool("Walk", false);
-    }
-
     public void ResetAnimations()
     {
-        animator.SetBool("Walk", false);
-        animator.SetBool("Attack", false);
-        animator.SetBool("ReturnToIdle", true);
+        animator.ResetTrigger("Attack");
     }
 
     public void Defeat()
     {
-        animator.SetBool("Defeat", true);
+        animator.SetTrigger("Defeat");
     }
     void SetGUI()
     {
@@ -278,7 +308,8 @@ public class EnemyFight : MonoBehaviour
     }
     public void RegenerateStamina()
     {
-        Stamina += Mathf.Clamp(Mathf.FloorToInt(MaxStamina / 5), 0, MaxStamina);
+        //Stamina += Mathf.Clamp(Mathf.FloorToInt(MaxStamina / 4), 0, MaxStamina);
+        Stamina += Mathf.Clamp(5, 0, MaxStamina);
     }
     void PlayEfekt()
     {
