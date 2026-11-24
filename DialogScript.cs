@@ -14,12 +14,11 @@ public enum Postavy
 [System.Serializable]
 public class DialogFace
 {
-    public Postavy postava;
-    public Sprite Base;
-    public Sprite Eyes;
-    public Sprite Eyebrows;
-    public Sprite Mouth;
-    public Sprite TalkingMouth;
+    public Sprite Base; // základní sprite postavy
+    public Sprite Eyes; // oči postavy
+    public Sprite Eyebrows; // obočí postavy
+    public Sprite Mouth; // pusa postavy
+    public Sprite TalkingMouth; // animační snímek otevřené pusy
 }
 /*
  Maki - Normální 0
@@ -72,70 +71,70 @@ public class DialogScript : MonoBehaviour
     }
     private void NactiObrazekPostavy(int index)
     {
-        if (index == -1)
+        if (index > Faces.Count - 1 || index < 0) // pokud index neexistuje, vykreslí se prázdný sprite 16
         {
-            DialogBody.GetComponent<Image>().sprite = null;
-            DialogShadow.GetComponent<Image>().sprite = null;
-            DialogEyebrows.GetComponent<Image>().sprite = null;
-            DialogEyes.GetComponent<Image>().sprite = null;
-            return;
-        }
-        if (index > Faces.Count - 1 || index < 0)
-        {
-            return;
+            index = 16;
         }
         DialogBody.GetComponent<Image>().sprite = Faces[index].Base;
         DialogShadow.GetComponent<Image>().sprite = Faces[index].Base;
         DialogEyebrows.GetComponent<Image>().sprite = Faces[index].Eyebrows;
         DialogEyes.GetComponent<Image>().sprite = Faces[index].Eyes;
         DialogMouth.GetComponent<Image>().sprite = Faces[index].Mouth;
-        StoredIndex = index;
+        StoredIndex = index; // uloží index
         
 
     }
     // Update is called once per frame
     void Update()
     {
-        AnimateMouth = MomentalniZprava != null && zpravaIndex < MomentalniZprava.Length;
-        if (MomentalniZprava != null && zpravaIndex < MomentalniZprava.Length)
+        AnimateMouth = MomentalniZprava != null && zpravaIndex < MomentalniZprava.Length; // určuje, jestli má animovat ústa
+        if (MomentalniZprava != null && zpravaIndex < MomentalniZprava.Length) // pokud momentální text existuje a není už vypsaný
         {
-            if (letterTime <= 0f)
+            if (letterTime <= 0f) // letterTime označuje čas na vypsání každého písmena dialogu
             {
-                CS.PlayTalkSound();
-                if (MomentalniZprava[zpravaIndex] == '.')
+                CS.PlayTalkSound(); // přehraje zvuk
+                if (MomentalniZprava[zpravaIndex] == '.') // tečky mají nejdelší čas výpisu
                 {
                     letterTime = 0.2f;
                 }
-                else if (MomentalniZprava[zpravaIndex] == ',')
+                else if (MomentalniZprava[zpravaIndex] == ',') // čárky o polovinu menší
                 {
                     letterTime = 0.1f;
                 }
-                else
+                else // všechna ostatní písmena se vypisují normální rychlostí
                 {
                     letterTime = 0.05f;
                 }
-                TextDialogu.text = MomentalniZprava.Substring(0,zpravaIndex + 1);
+                TextDialogu.text = MomentalniZprava.Substring(0,zpravaIndex + 1); // vypíše momentální část dialogu
                 zpravaIndex++;
             }
         }
-        if (letterTime > 0f)
+        if (letterTime > 0f) // odpočítává čas
         {
             letterTime -= Time.deltaTime;
         }
-        if (StoredIndex >= 0)
+        if (StoredIndex >= 0) // pokud existuje konkrétní portrét
         {
-            if (AnimateMouth)
+            bool openMouth = Time.time * 5 % 2 > 1; // přepíná zhruba 3x za sekundu
+            if (AnimateMouth) // pokud má animovat ústa
             {
-                currentActor.Talk(Time.time * 5 % 2 > 1, StoredIndex);
-                DialogMouth.GetComponent<Image>().sprite = Time.time * 5 % 2 > 1 ? Faces[StoredIndex].Mouth : Faces[StoredIndex].TalkingMouth;
+                if (currentActor) // pokud existuje 3D model postavy
+                {
+                    currentActor.Talk(openMouth, StoredIndex); // otevře / zavře ústa u 3D modelu
+                }
+                // to samé u portrétu
+                DialogMouth.GetComponent<Image>().sprite = openMouth ? Faces[StoredIndex].Mouth : Faces[StoredIndex].TalkingMouth;
             }
             else
             {
-                currentActor.Talk(false, StoredIndex);
-                DialogMouth.GetComponent<Image>().sprite = Faces[StoredIndex].Mouth;
+                if (currentActor)
+                {
+                    currentActor.Talk(false, StoredIndex); // vykreslí 3D postavě zavřená ústa
+                }
+                DialogMouth.GetComponent<Image>().sprite = Faces[StoredIndex].Mouth; // to samé vykreslí portrétu
             }
         }
-        if (Input.GetKeyDown(KeyCode.E) && MomentalniZprava != null)
+        if (Input.GetKeyDown(KeyCode.E) && MomentalniZprava != null) // přepne na další zprávu
         {
             Next();
         }
