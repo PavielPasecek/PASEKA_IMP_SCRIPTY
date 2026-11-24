@@ -1,5 +1,7 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -27,6 +29,12 @@ public class PlayerController : MonoBehaviour
     private float yaw = 0f;
     private float pitch = 0f;
 
+    public string Ukol;
+    public GameObject menu;
+    public TMP_Text text;
+    public GameObject StopMenu;
+    bool GameStopped = false;
+
     float yawChange;
     float pitchChange;
 
@@ -44,17 +52,17 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!isInFight) // chceme pohybovat postavou pouze, pokud není ve stavu boje
+        if (!isInFight && !GameStopped) // chceme pohybovat postavou pouze, pokud není ve stavu boje
         {
             Move();
-            HandleCamera();
+            HandleCamera();  
         }
+        HandleStopInput();
+        menu.SetActive(!isInFight);
     }
 
     void Move()
     {
-        // s otáčením kamery a následným pohybem postavy směrem, kterým míří kamera, pomáhala umělá inteligence Gemini
-
         Vector3 camForward = MainCamera.transform.forward; // výpočet pohybu směrem kamery
         Vector3 camRight = MainCamera.transform.right;
         camForward.y = 0f;
@@ -62,37 +70,78 @@ public class PlayerController : MonoBehaviour
         camForward.Normalize();
         camRight.Normalize();
         Vector3 move = camRight * xaxis + camForward * yaxis;
-        float inputMagnitude = Mathf.Clamp01(move.magnitude); // výpočet rychlosti postavy, 
+        float inputMagnitude = Mathf.Clamp01(move.magnitude);
         yVelocity += gravity * Time.deltaTime; // výpočet gravitace
         // nastavení pozice a rotace modelu postavy
         CharacterRig.transform.position = transform.position + Vector3.down;
         if (move.magnitude > 0.03f)
         {
-            CharacterRig.transform.rotation = Quaternion.Slerp(CharacterRig.transform.rotation, Quaternion.LookRotation(move), Time.deltaTime * 15); // otočení postavy směrem chození
+            CharacterRig.transform.rotation = Quaternion.Slerp(CharacterRig.transform.rotation, Quaternion.LookRotation(move), Time.deltaTime * 15); 
+            // otočení postavy směrem chození
         }
         move = move.normalized; // normalizace pohybum aby při diagonálním chození nebyla postava rychlejší
-        Vector3 velocity = moveSpeed * (DungeonAnimations ? 1 : 0.6f) * move + Vector3.up * yVelocity; 
+        Vector3 velocity = moveSpeed * (DungeonAnimations ? 1 : 0.6f) * move + Vector3.up * yVelocity;  // nastavení rychlosti
         controller.Move(velocity * Time.deltaTime);
         animator.SetFloat("Speed", inputMagnitude); // animace chození
         CharacterRig.GetComponent<Animations>().speed = inputMagnitude; // přeposlání rychlosti (pro animace)
-        animator.SetLayerWeight(animator.GetLayerIndex("City"), DungeonAnimations ? 0 : 1);
+
+        animator.SetLayerWeight(animator.GetLayerIndex("City"), DungeonAnimations ? 0 : 1); // přepnutí animací postavy
         Weaponp1.gameObject.SetActive(DungeonAnimations);
         Weaponp2.gameObject.SetActive(DungeonAnimations);
+        text.text = Ukol;
     }
 
     void HandleCamera()
     {
         yaw += yawChange;
         pitch -= pitchChange;
-        pitch = Mathf.Clamp(pitch, minPitch, maxPitch); // clamp, proti pohledu moc nahoru nebo dolu
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch); // omezení vertikálního pohledu
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0); 
         Vector3 targetPivot = transform.position + Vector3.up * cameraHeight;
         Vector3 Position = targetPivot - (rotation * Vector3.forward * cameraDistance); // výpočet kamery
+        RaycastHit hit;
+        if (Physics.Raycast(targetPivot,Position - targetPivot, out hit,20)) // zjištění kolize raycastu
+        {
+            if (hit.distance < cameraDistance)
+            {
+                Position = targetPivot - (rotation * Vector3.forward * (hit.distance - 0.6f)); // pokud kamera narazí na objekt, přiblíží se ke hráčovi
+            }
+        }
         MainCamera.transform.position = Position;
         MainCamera.transform.rotation = rotation; // nastavení rotace a pozice
     }
+
+    void HandleStopInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape) && !isInFight)
+        {
+            GameStopped = !GameStopped;
+            if (GameStopped)
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+        }
+        StopMenu.SetActive(GameStopped);
+        if (GameStopped)
+        {
+            Time.timeScale = 0f;
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                SceneManager.LoadScene(0);
+            }
+        }
+        else
+        {
+            Time.timeScale = 1f;
+        }
+    }
     public void GoInFight() // nastaví postavu do stavu boje
     {
+        GameStopped = false;
         isInFight = true;
         animator.SetFloat("Speed", 0);
     }
