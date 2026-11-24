@@ -8,11 +8,11 @@ using UnityEngine.UI;
 public class FightGUIHandler : MonoBehaviour
 {
     public bool isInFight = false;
-    public GameObject CurrentFight; // objekt momentálního souboje, nastaví jinı kód
-    public GameObject ActiveCharacter; // momentální aktivní postava, nastaví jinı kód
+    public GameObject CurrentFight; // objekt momentÃ¡lnÃ­ho souboje, nastavÃ­ jinÃ½ kÃ³d
+    public GameObject ActiveCharacter; // momentÃ¡lnÃ­ aktivnÃ­ postava, nastavÃ­ jinÃ½ kÃ³d
 
     [Header("Hracovi Utoky")]
-    public GameObject Utoky; // seznam hráèovıch útokù, nastaví jinı kód
+    public GameObject Utoky; // seznam hrÃ¡ÄovÃ½ch ÃºtokÅ¯, nastavÃ­ jinÃ½ kÃ³d
 
     [Header("Seznamy")]
     public List<GameObject> Teammates;
@@ -21,22 +21,22 @@ public class FightGUIHandler : MonoBehaviour
     public GameObject EnemyList;
 
     [Header("Tlacitka a volby")]
-    public GameObject ProceedButton; // tlaèítko na potvrzení útoku
-    public GameObject BackButton; // tlaèítko na vrácení o krok zpìt
-    public GameObject ZakladniVolba; // 3 tlaèítka, útok, obrana a kapsy
-    public GameObject Guard; // okno s dialogem, objeví se po vıbìru "Obrana"
+    public GameObject ProceedButton; // tlaÄÃ­tko na potvrzenÃ­ Ãºtoku
+    public GameObject BackButton; // tlaÄÃ­tko na vrÃ¡cenÃ­ o krok zpÄ›t
+    public GameObject ZakladniVolba; // 3 tlaÄÃ­tka, Ãºtok, obrana a kapsy
+    public GameObject Guard; // okno s dialogem, objevÃ­ se po vÃ½bÄ›ru "Obrana"
 
-    public GameObject IntroAnim; // animace na zaèátku souboje
+    public GameObject IntroAnim; // animace na zaÄÃ¡tku souboje
 
-    public GameObject Info; // informace o daném útoku
-    public TMP_Text InfoText; // text v informacích
-    public TMP_Text InfoPower; // síla v informacích
-    public TMP_Text InfoStamina; // energie v informacích
-    public TMP_Text InfoStatus; // status v informacích
+    public GameObject Info; // informace o danÃ©m Ãºtoku
+    public TMP_Text InfoText; // text v informacÃ­ch
+    public TMP_Text InfoPower; // sÃ­la v informacÃ­ch
+    public TMP_Text InfoStamina; // energie v informacÃ­ch
+    public TMP_Text InfoStatus; // status v informacÃ­ch
 
-    public GameObject GameOverButtons; // tlaèítka vzdát a zpìt do menu
+    public GameObject GameOverButtons; // tlaÄÃ­tka vzdÃ¡t a zpÄ›t do menu
 
-    public AttackHandler FightAttackHandler; // Attack Handler, aby si kód mohl zjišovat informace o útocích
+    public AttackHandler FightAttackHandler; // Attack Handler, aby si kÃ³d mohl zjiÅ¡Å¥ovat informace o ÃºtocÃ­ch
 
     int VybranyUtok = 0;
     int VybranyCil = 0;
@@ -61,6 +61,7 @@ public class FightGUIHandler : MonoBehaviour
 
     void Start()
     {
+        Application.targetFrameRate = 60;
         Teammates = new List<GameObject>();
         Enemies = new List<GameObject>();
         UpdateUI();
@@ -80,9 +81,19 @@ public class FightGUIHandler : MonoBehaviour
         currentState = MenuState.ZakladniVolba;
         UpdateUI();
     }
-    public List<GameObject> ReturnPlayerUI(int heroIndex) // pøedá postavì v bitvì jeho UI
+    public List<GameObject> ReturnPlayerUI(int heroIndex) // pÅ™edÃ¡ postavÄ› v bitvÄ› jeho UI
     {
         return HeroIconsUI[heroIndex];
+    }
+    void HideCharIcons()
+    {
+        CharIconAnims.SetBool("Down", true);
+        CharIconAnims.SetBool("Up", false);
+    }
+    void ShowCharIcons()
+    {
+        CharIconAnims.SetBool("Down", false);
+        CharIconAnims.SetBool("Up", true);
     }
     private void UpdateUI()
     {
@@ -95,37 +106,34 @@ public class FightGUIHandler : MonoBehaviour
         Guard.SetActive(false);
         Info.SetActive(false);
         UpdateHeroList();
-        if (currentState == MenuState.ZakladniVolba) // zobrazí základní volbu (útok, obrana, kapsy)
+        if (currentState == MenuState.ZakladniVolba) // zobrazÃ­ zÃ¡kladnÃ­ volbu (Ãºtok, obrana)
         {
             ZakladniVolba.SetActive(true);
-            CharIconAnims.SetBool("Down",true);
-            CharIconAnims.SetBool("Up",false);
+            HideCharIcons();
         }
-        else if (currentState == MenuState.VyberUtoku) // zobrazí 4 útoky hráèe a tlaèítko zpìt
+        else if (currentState == MenuState.VyberUtoku) // zobrazÃ­ 4 Ãºtoky hrÃ¡Äe a tlaÄÃ­tko zpÄ›t
         {
             UpdateAttackList();
             Utoky.SetActive(true);
             BackButton.SetActive(true);
             Info.SetActive(false);
-            CharIconAnims.SetBool("Down", true);
-            CharIconAnims.SetBool("Up", false);
+            HideCharIcons();
         }
-        else if (currentState == MenuState.Pripraveno || currentState == MenuState.VyberCile) // nechá hráèe vybrat cíl a následnì provést útok
+        else if (currentState == MenuState.Pripraveno || currentState == MenuState.VyberCile) // nechÃ¡ hrÃ¡Äe vybrat cÃ­l a nÃ¡slednÄ› provÃ©st Ãºtok
         {
-            CharIconAnims.SetBool("Down", false);
-            CharIconAnims.SetBool("Up", true);
+            ShowCharIcons();
             Info.SetActive(true);
-            if (utokJeNaEnemy)
+            if (utokJeNaEnemy) // pokud je Ãºtok na protivnÃ­ky
             {
                 EnemyList.SetActive(true);
                 UpdateEnemyList();
             }
-            else
+            else // pokud je Ãºtok na spoluhrÃ¡Äe (lÃ©ÄenÃ­)
             {
                 TeammateList.SetActive(true);
             }
             BackButton.SetActive(true);
-            if (currentState == MenuState.Pripraveno)
+            if (currentState == MenuState.Pripraveno) // zobrazÃ­ tlaÄÃ­tko na zahÃ¡jenÃ­ Ãºtoku
             {
                 ProceedButton.transform.Find("Energie").GetComponent<TMP_Text>().text = "-" + FightAttackHandler.Stamina(VybranyUtok).ToString();
                 ProceedButton.transform.Find("Energie").GetComponent<TMP_Text>().color = new Color(0, 0.9450981f,1);
@@ -137,7 +145,7 @@ public class FightGUIHandler : MonoBehaviour
                 }
             }
         }
-        else if (currentState == MenuState.PotvrzeniGuard)
+        else if (currentState == MenuState.PotvrzeniGuard) // obrana
         {
             Guard.SetActive(true);
 
@@ -147,7 +155,7 @@ public class FightGUIHandler : MonoBehaviour
     public void OnClickAttack() { currentState = MenuState.VyberUtoku; UpdateUI(); }
     public void OnClickGuard() { currentState = MenuState.PotvrzeniGuard; UpdateUI(); }
 
-    private TargetType CheckAttack(int utokID) // Zjistí, jestli je útok kladnı a jestli se provede na více protivníkù
+    private TargetType CheckAttack(int utokID) // ZjistÃ­, jestli je Ãºtok kladnÃ½ a jestli se provede na vÃ­ce protivnÃ­kÅ¯
     {
         if (FightAttackHandler.GetIsHealing(utokID))
         {
@@ -166,7 +174,7 @@ public class FightGUIHandler : MonoBehaviour
         }
     }
 
-    private void SelectorOnAll(bool heroes) // zobrazí šipky na všech postavách
+    private void SelectorOnAll(bool heroes) // zobrazÃ­ Å¡ipky na vÅ¡ech postavÃ¡ch
     {
         CurrentFight.GetComponent<FightHandler>().SkryjSelectedSipky();
         if (heroes)
@@ -184,14 +192,14 @@ public class FightGUIHandler : MonoBehaviour
             }
         }
     }
-    void Selector(int index,bool heroes) // zobrazí šipky
+    void Selector(int index,bool heroes) // zobrazÃ­ Å¡ipky
     {
         CurrentFight.GetComponent<FightHandler>().SkryjSelectedSipky();
         CurrentFight.GetComponent<FightHandler>().UkazSelectedSipky(index, heroes);
     }
     
 
-    public void VybranUtok(int cisloUtoku) // podle stisknutí tlaèítka vybere útok a zjistí mu ID
+    public void VybranUtok(int cisloUtoku) // podle stisknutÃ­ tlaÄÃ­tka vybere Ãºtok a zjistÃ­ mu ID
     {
         int postava = 0;
         if (ActiveCharacter.GetComponent<PlayerFight>().Postava == PlayerFight.Postavy.Reno)
@@ -228,9 +236,9 @@ public class FightGUIHandler : MonoBehaviour
     public void VybranUtok2() { VybranUtok(1); }
     public void VybranUtok3() { VybranUtok(2); }
     public void VybranUtok4() { VybranUtok(3); }
-    public void VybranCil(int cisloCile) // vybere cíl
+    public void VybranCil(int cisloCile) // vybere cÃ­l
     {
-        if (utokJeNaEnemy) // zjistí, jestli není poraenı
+        if (utokJeNaEnemy) // zjistÃ­, jestli nenÃ­ poraÅ¾enÃ½
         {
             if (Enemies[cisloCile - 1].GetComponent<EnemyFight>().CurrentHP <= 0)
             {
@@ -244,7 +252,7 @@ public class FightGUIHandler : MonoBehaviour
                 return;
             }
         }
-        VybranyCil = cisloCile; // vybere cíl a pøipraví útok
+        VybranyCil = cisloCile; // vybere cÃ­l a pÅ™ipravÃ­ Ãºtok
         Selector(cisloCile - 1,!utokJeNaEnemy);
         currentState = MenuState.Pripraveno;
         UpdateUI();
@@ -284,7 +292,7 @@ public class FightGUIHandler : MonoBehaviour
                 Back();
             }
         }
-        else if (currentState == MenuState.VyberCile || (currentState == MenuState.Pripraveno && !AllEnemiesUtok)) // pokud vybírám cíl, nebo potvrzuji útok
+        else if (currentState == MenuState.VyberCile || (currentState == MenuState.Pripraveno && !AllEnemiesUtok)) // pokud vybÃ­rÃ¡m cÃ­l, nebo potvrzuji Ãºtok
         {
             if (utokJeNaEnemy)
             {
@@ -330,7 +338,7 @@ public class FightGUIHandler : MonoBehaviour
                 Back();
             }
         }
-        else if (currentState == MenuState.ZakladniVolba) // pokud vybírám útok, kapsy nebo obranu
+        else if (currentState == MenuState.ZakladniVolba) // pokud vybÃ­rÃ¡m Ãºtok, kapsy nebo obranu
         {
             if (tlacitko == 'w')
             {
@@ -359,12 +367,12 @@ public class FightGUIHandler : MonoBehaviour
 
     }
     
-    public void GuardConfirmYes() // pokud se místo útoku chceme bránit
+    public void GuardConfirmYes() // pokud se mÃ­sto Ãºtoku chceme brÃ¡nit
     {
         CurrentFight.GetComponent<FightHandler>().PlayerChoseAttack(-1, false, 0, ActiveCharacter);
         EndTurn();
     }
-    public void GuardConfirmNo() { Back(); } // vrátí zpátky o jeden krok
+    public void GuardConfirmNo() { Back(); } // vrÃ¡tÃ­ zpÃ¡tky o jeden krok
 
     public void Back()
     {
@@ -379,13 +387,13 @@ public class FightGUIHandler : MonoBehaviour
         UpdateUI();
     }
 
-    public void FireAttack() // vyšle signál, e hráè vybral útok a mùe se tak provést další èást boje
+    public void FireAttack() // vyÅ¡le signÃ¡l, Å¾e hrÃ¡Ä vybral Ãºtok a mÅ¯Å¾e se tak provÃ©st dalÅ¡Ã­ ÄÃ¡st boje
     {
         if (FightAttackHandler.Stamina(VybranyUtok) <= ActiveCharacter.GetComponent<PlayerFight>().Stamina) // kontrola, dostatek staminy
         {
             CharIconAnims.SetBool("Down", true);
             CharIconAnims.SetBool("Up", false);
-            CurrentFight.GetComponent<FightHandler>().PlayerChoseAttack(VybranyUtok, utokJeNaEnemy, VybranyCil, ActiveCharacter); // pošle metodu
+            CurrentFight.GetComponent<FightHandler>().PlayerChoseAttack(VybranyUtok, utokJeNaEnemy, VybranyCil, ActiveCharacter); // poÅ¡le metodu
             EndTurn();
         }
     }
@@ -396,41 +404,41 @@ public class FightGUIHandler : MonoBehaviour
         UpdateUI();
     }
 
-    public void UpdateEnemyList() // obsah této metody byl generován umìlou inteligencí Gemini
+    public void UpdateEnemyList() // obsah tÃ©to metody byl generovÃ¡n umÄ›lou inteligencÃ­ Gemini
     {
-        foreach (Transform child in EnemyList.transform) child.gameObject.SetActive(false); // skryje všechny tlaèítka s protivníky
+        foreach (Transform child in EnemyList.transform) child.gameObject.SetActive(false); // skryje vÅ¡echny tlaÄÃ­tka s protivnÃ­ky
         for (int i = 0; i < Enemies.Count; i++)
         {
             Transform btn = EnemyList.transform.Find("Enemy" + (i + 1).ToString());
-            if (btn != null && Enemies[i].GetComponent<EnemyFight>().CurrentHP > 0) // ukáe pouze protivníky, kteøí nejsou poraení
+            if (btn != null && Enemies[i].GetComponent<EnemyFight>().CurrentHP > 0) // ukÃ¡Å¾e pouze protivnÃ­ky, kteÅ™Ã­ nejsou poraÅ¾enÃ­
             {
                 btn.gameObject.SetActive(true);
-                //btn.Find("Text").GetComponent<TMP_Text>().text = Enemies[i].GetComponent<EnemyFight>().Name; pozdìji ikonka
+                btn.Find("Image").GetComponent<Image>().sprite = Enemies[i].GetComponent<EnemyFight>().Icon;
             }
         }
     }
 
-    public void UpdateHeroList() // obsah této metody byl generován umìlou inteligencí Gemini
+    public void UpdateHeroList() // obsah tÃ©to metody byl generovÃ¡n umÄ›lou inteligencÃ­ Gemini
     {
-        foreach (Transform child in TeammateList.transform) child.gameObject.SetActive(false); // skryje všechny tlaèítka s èleny tımu
-        foreach (Transform child in CharIcons.transform) child.gameObject.SetActive(false); // skryje všechny ivoty èlenù tımu (vytvoøeno mnou)
+        foreach (Transform child in TeammateList.transform) child.gameObject.SetActive(false); // skryje vÅ¡echny tlaÄÃ­tka s Äleny tÃ½mu
+        foreach (Transform child in CharIcons.transform) child.gameObject.SetActive(false); // skryje vÅ¡echny Å¾ivoty ÄlenÅ¯ tÃ½mu (vytvoÅ™eno mnou)
         foreach (GameObject teammate in Teammates)
         {
-            if (teammate.GetComponent<PlayerFight>().CurrentHP > 0) // ukáe pouze èleny tımu, kteøí nejsou poraení
+            if (teammate.GetComponent<PlayerFight>().CurrentHP > 0) // ukÃ¡Å¾e pouze Äleny tÃ½mu, kteÅ™Ã­ nejsou poraÅ¾enÃ­
             {
-                string expectedBtn = teammate.name.Replace("Fight", "Button"); // Udìlá ze stringu JménoFight JménoButton
+                string expectedBtn = teammate.name.Replace("Fight", "Button"); // UdÄ›lÃ¡ ze stringu JmÃ©noFight JmÃ©noButton
                 Transform btn = TeammateList.transform.Find(expectedBtn);
                 if (btn != null) btn.gameObject.SetActive(true);
             }
-            CharIcons.transform.Find(teammate.name.Replace("Fight","")).gameObject.SetActive(true); // (vytvoøeno mnou)
+            CharIcons.transform.Find(teammate.name.Replace("Fight","")).gameObject.SetActive(true); // (vytvoÅ™eno mnou)
         }
     }
-    void SetInfoAboutAttack(int attackId) // nastavuje informace o jednotlivıch útocích
+    void SetInfoAboutAttack(int attackId) // nastavuje informace o jednotlivÃ½ch ÃºtocÃ­ch
     {
-        //Textovı popis
+        //TextovÃ½ popis
         InfoText.text = FightAttackHandler.GetAttackInfo(attackId).ToString();
-        // síla
-        InfoPower.text = "Síla:" + FightAttackHandler.GetDamage(attackId).ToString().TrimStart('-');
+        // sÃ­la
+        InfoPower.text = "SÃ­la:" + FightAttackHandler.GetDamage(attackId).ToString().TrimStart('-');
         
         if (FightAttackHandler.GetDamage(attackId) > 0)
         {
@@ -454,15 +462,15 @@ public class FightGUIHandler : MonoBehaviour
         {
             InfoStamina.text = "";
         }
-        // status útoku
+        // status Ãºtoku
         if (FightAttackHandler.GetStatus(attackId) == StatusEfekt.Povzbuzeni)
         {
-            InfoStatus.text = "+ Povzbuzení";
+            InfoStatus.text = "+ PovzbuzenÃ­";
             InfoStatus.color = Color.yellow;
         }
         else if (FightAttackHandler.GetStatus(attackId) == StatusEfekt.Vystraseny)
         {
-            InfoStatus.text = "+ Vystrašení";
+            InfoStatus.text = "+ VystraÅ¡enÃ­";
             InfoStatus.color = Color.mediumPurple;
         }
         else if (FightAttackHandler.GetStatus(attackId) == StatusEfekt.BolestHlavy)
@@ -472,15 +480,20 @@ public class FightGUIHandler : MonoBehaviour
         }
         else if (FightAttackHandler.GetStatus(attackId) == StatusEfekt.Mokry)
         {
-            InfoStatus.text = "+ Mokrı";
+            InfoStatus.text = "+ MokrÃ½";
             InfoStatus.color = Color.lightSkyBlue;
+        }
+        else if (FightAttackHandler.GetStatus(attackId) == StatusEfekt.Slepota)
+        {
+            InfoStatus.text = "+ Slepota";
+            InfoStatus.color = Color.grey;
         }
         else
         {
             InfoStatus.text = "";
         }
     }
-    public void UpdateAttackList() // zjistí, jaká je momentální pouívaná postava a podle ní ukáe všechny její útoky
+    public void UpdateAttackList() // zjistÃ­, jakÃ¡ je momentÃ¡lnÃ­ pouÅ¾Ã­vanÃ¡ postava a podle nÃ­ ukÃ¡Å¾e vÅ¡echny jejÃ­ Ãºtoky
     {
         int postava = 0;
         if (ActiveCharacter.GetComponent<PlayerFight>().Postava == PlayerFight.Postavy.Reno)
@@ -510,12 +523,11 @@ public class FightGUIHandler : MonoBehaviour
         }
     }
 
-    public void PlayStartAnimation() // spustí intro animaci
+    public void PlayStartAnimation() // spustÃ­ intro animaci
     {
         IntroAnim.SetActive(true);
         IntroAnim.GetComponent<Animator>().Play("IntroAnim");
-        CharIconAnims.SetBool("Down", true);
-        CharIconAnims.SetBool("Up", false);
+        HideCharIcons();
     }
     void Hide() // skryje intro animaci
     {
@@ -546,7 +558,7 @@ public class FightGUIHandler : MonoBehaviour
         CharIcons.SetActive(false);
         GameOverButtons.SetActive(true);
     }
-    public void HideStartAnimation() // po 0.2 vteøiny skryje intro animaci
+    public void HideStartAnimation() // po 0.2 vteÅ™iny skryje intro animaci
     {
         Invoke("Hide",0.2f);
     }
