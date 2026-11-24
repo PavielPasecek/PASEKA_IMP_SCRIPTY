@@ -9,51 +9,60 @@ public class SoundService : MonoBehaviour
 
     public AudioSource BattleMusicStart;
     public AudioSource BattleMusic;
+    public AudioClip BattleMusicClip;
+    public AudioClip BossMusicClip;
     public List<AudioClip> AttackSounds;
-    public AudioSource AttackSource;
     public AudioSource HitSound;
     public AudioClip TalkSound;
-    public AudioClip WalkSound;
+    public AudioClip Ambient;
+    public AudioClip VictorySound;
+    public AudioClip GameOver;
 
     AudioSource SoundSource;
 
-    float waitForStartToEnd = 0f;
+    float fade = 0f;
 
-    public void PlayMusic()
+    public void PlayMusic(bool isBoss)
     {
+        BattleMusic.Stop();
+        BattleMusic.volume = 0.5f;
+        BattleMusic.resource = isBoss ? BossMusicClip : BattleMusicClip;
         BattleMusicStart.Play();
-        if (BattleMusic.resource)
-            waitForStartToEnd = BattleMusicStart.clip.length;
-    }
-
-    void PlayLoop()
-    {
-        BattleMusicStart.Stop();
-        BattleMusic.Play();
+        if (BattleMusic.resource && BattleMusicStart.resource && !isBoss)
+            BattleMusic.PlayScheduled(AudioSettings.dspTime + BattleMusicStart.clip.length);
+        else
+        {
+            BattleMusic.Play();
+        }
     }
 
     public void StopVoices()
     {
         SoundSource.Stop();
     }
+    public void Victory()
+    {
+        SoundSource.resource = VictorySound;
+        SoundSource.Play();
+    }
+    public void GameOverSound()
+    {
+        SoundSource.resource = GameOver;
+        SoundSource.Play();
+    }
     public void StopMusic()
     {
         BattleMusicStart.Stop();
-        BattleMusic.Stop();
+        fade = 0.5f;
+        Victory();
     }
-    public void PlayBattleSound(int indexHlasuPostavy, int indexUtoku, bool playHit)
+    public void PlayBattleSound(int index)
     {
-        PlayVoice(indexHlasuPostavy);
-        PlayAttackSound(indexUtoku,playHit);
-    }
-    void PlayVoice(int index)
-    {
-        SoundSource.resource = HlasyPostav[index];
-        SoundSource.Play();
-    }
-    public void PlayAttackSound(int index, bool playHit)
-    {
-        if (playHit)
+        if (index >= 16)
+        {
+            index = 16;
+        }
+        if (index == 0 || index == 1 || index == 4 || index == 5 || index == 16)
             HitSound.Play();
         SoundSource.resource = AttackSounds[index];
         SoundSource.Play();
@@ -61,7 +70,11 @@ public class SoundService : MonoBehaviour
     public void PlayTalkSound()
     {
         SoundSource.resource = TalkSound;
-        SoundSource.Play();
+        if (SoundSource.isPlaying == false)
+        {
+            SoundSource.Play();
+        }
+        
     }
     void Start()
     {
@@ -71,11 +84,14 @@ public class SoundService : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (waitForStartToEnd > 0f)
+        if (fade > 0f)
         {
-            waitForStartToEnd -= Time.deltaTime;
-            if (waitForStartToEnd < 0f)
-                PlayLoop();
+            fade -= Time.deltaTime;
+            BattleMusic.volume = fade;
+            if (fade < 0f)
+            {
+                BattleMusic.Stop();
+            }
         }
     }
 }
