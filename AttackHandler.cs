@@ -2,40 +2,45 @@ using UnityEngine;
 using System.Collections.Generic;
 public class AttackHandler : MonoBehaviour
 {
-    // Seznam všech útokù ve høe
+    // Seznam vÅ¡ech ÃºtokÅ¯ ve hÅ™e
     public List<Utok> databazeUtoku = new List<Utok>();
 
     void Awake()
     {
-        /* Jméno útoku, Poškození (záporné pro léèení, následnì násobeno levelem), Vyuití energie, Typ útoku, Status, šance na status (vyšší èíslo, vyšší šance), 
-         * šance na trefu útoku, Je plošnı (útoèí na všechny nepøátele), Je kladnı (Provede se na èleny tımu), Má animaci chození, 
-         * typ QTE (0 bez QTE, 1 rychlé klikání, 2 - 3 rychlá tlaèítka), info k útoku*/
+        /* JmÃ©no Ãºtoku, PoÅ¡kozenÃ­ (zÃ¡pornÃ© pro lÃ©ÄenÃ­, nÃ¡slednÄ› nÃ¡sobeno levelem), VyuÅ¾itÃ­ energie, Status, Å¡ance na status (vyÅ¡Å¡Ã­ ÄÃ­slo, vyÅ¡Å¡Ã­ Å¡ance), 
+         * Å¡ance na trefu Ãºtoku, Je ploÅ¡nÃ½ (ÃºtoÄÃ­ na vÅ¡echny nepÅ™Ã¡tele), Je kladnÃ½ (Provede se na Äleny tÃ½mu), MÃ¡ animaci chozenÃ­, 
+         * typ QTE (0 bez QTE, 1 rychlÃ© klikÃ¡nÃ­, 2 - 3 rychlÃ¡ tlaÄÃ­tka), info k Ãºtoku*/
         // MAKI (ID 0-3)
-        databazeUtoku.Add(new Utok("Úder pálkou", 15, 0, StatusEfekt.Zadny,0f,1f,false,false,true,1,"Praští pálkou protivníka. Nevyuívá ádnou energii"));
-        databazeUtoku.Add(new Utok("Hod sodovkou", 16, 5, StatusEfekt.Zadny,0.3f,0.9f,false,false,false,2,"Hodí na protivníka plechovku se sodou."));
-        databazeUtoku.Add(new Utok("Rána do zemì", 0, 10,  StatusEfekt.BolestHlavy, 0.7f,0f,true,false,false,0,"Udeøí pálkou do zemì. Její vibrace mùou protivníkùm zpùsobit bolest hlavy"));
-        databazeUtoku.Add(new Utok("Svaèina", -30, 15,  StatusEfekt.Zadny,0f,1f,false,true,false,0,"Vyléèí jednoho èlena tımu"));
+        databazeUtoku.Add(new Utok("Ãšder pÃ¡lkou", 30, 0, StatusEfekt.Zadny, 0f, 1f, false, false, true, 1, "PraÅ¡tÃ­ pÃ¡lkou protivnÃ­ka. NevyuÅ¾Ã­vÃ¡ Å¾Ã¡dnou energii"));
+        databazeUtoku.Add(new Utok("Hod sodovkou", 33, 5, StatusEfekt.Zadny, 0.3f, 0.9f, false, false, false, 2, "HodÃ­ na protivnÃ­ka plechovku se sodou."));
+        databazeUtoku.Add(new Utok("RÃ¡na do zemÄ›", 0, 10, StatusEfekt.BolestHlavy, 0.7f, 0f, true, false, false, 0, "UdeÅ™Ã­ pÃ¡lkou do zemÄ›. JejÃ­ vibrace mÅ¯Å¾ou protivnÃ­kÅ¯m zpÅ¯sobit bolest hlavy"));
+        databazeUtoku.Add(new Utok("SvaÄina", -35, 15, StatusEfekt.Zadny, 0f, 1f, false, true, false, 0, "VylÃ©ÄÃ­ jednoho Älena tÃ½mu"));
         // RENO (ID 4-7)
-        databazeUtoku.Add(new Utok("Rána kuføíkem", 18, 0, StatusEfekt.Zadny, 0f, 1f, false, false, true,2,"Protivník dostane silnou ránu kuføíkem. Bez vyuití energie"));
-        databazeUtoku.Add(new Utok("Kuføík-Combo", 10, 15, StatusEfekt.Zadny,0f,0.9f,true,false, true, 1,"Rychlı útok na všechny protivníky, bohuel nepøesnı"));
-        databazeUtoku.Add(new Utok("Prach z kuføíku", 0, 10,  StatusEfekt.Slepota, 0.8f,0f,false,false,true,0,"Otevøe kuføík a vypustí na nepøítele všechen prach. Prach moná udìlá protivníka slepım"));
-        databazeUtoku.Add(new Utok("Ukolébavka", 0, 12, StatusEfekt.Spanek, 0.33f,0f,false,false,false,0,"Vyzvánìní telefonu mùe protivníka uspat"));
+        databazeUtoku.Add(new Utok("RÃ¡na kufÅ™Ã­kem", 32, 0, StatusEfekt.Zadny, 0f, 1f, false, false, true, 2, "ProtivnÃ­k dostane silnou rÃ¡nu kufÅ™Ã­kem. Bez vyuÅ¾itÃ­ energie"));
+        databazeUtoku.Add(new Utok("KufÅ™Ã­k-Combo", 26, 15, StatusEfekt.Zadny, 0f, 0.9f, true, false, true, 1, "RychlÃ½ Ãºtok na vÅ¡echny protivnÃ­ky, bohuÅ¾el nepÅ™esnÃ½"));
+        databazeUtoku.Add(new Utok("Prach z kufÅ™Ã­ku", 0, 10, StatusEfekt.Slepota, 0.8f, 0f, false, false, true, 0, "OtevÅ™e kufÅ™Ã­k a vypustÃ­ na nepÅ™Ã­tele vÅ¡echen prach. Prach moÅ¾nÃ¡ udÄ›lÃ¡ protivnÃ­ka slepÃ½m"));
+        databazeUtoku.Add(new Utok("UkolÃ©bavka", 0, 12, StatusEfekt.Spanek, 0.33f, 0f, false, false, false, 0, "VyzvÃ¡nÄ›nÃ­ telefonu mÅ¯Å¾e protivnÃ­ka uspat"));
 
-        // AMMA a GRUNO - Nepouité postavy
+        // AMMA a GRUNO - NepouÅ¾itÃ© postavy
         databazeUtoku.Add(new Utok("Cupcake", 10, 0));
-        databazeUtoku.Add(new Utok("Sušenka", 14, 5));
-        databazeUtoku.Add(new Utok("Dort pro všechny", -25, 25, StatusEfekt.Zadny));
-        databazeUtoku.Add(new Utok("Dort pro všechny", -25, 25, StatusEfekt.Zadny));
-        databazeUtoku.Add(new Utok("Drtiè", 45, 30));
-        databazeUtoku.Add(new Utok("Zemìtøesení", 35, 40));
+        databazeUtoku.Add(new Utok("SuÅ¡enka", 14, 5));
+        databazeUtoku.Add(new Utok("Dort pro vÅ¡echny", -25, 25, StatusEfekt.Zadny));
+        databazeUtoku.Add(new Utok("Dort pro vÅ¡echny", -25, 25, StatusEfekt.Zadny));
+        databazeUtoku.Add(new Utok("DrtiÄ", 45, 30));
+        databazeUtoku.Add(new Utok("ZemÄ›tÅ™esenÃ­", 35, 40));
         databazeUtoku.Add(new Utok("Pohlavek", 8, 5));
         databazeUtoku.Add(new Utok("Pohlavek", 8, 5));
 
-        // Protivník
-        databazeUtoku.Add(new Utok("Kriket", 10, 0,StatusEfekt.Zadny,0,1,false,false,true)); //16
+        // ProtivnÃ­ci
+        databazeUtoku.Add(new Utok("NormÃ¡lnÃ­ Ãºtok", 28, 0, StatusEfekt.Zadny, 0, 1, false, false, true)); //16
+        databazeUtoku.Add(new Utok("SlabÃ½ Ãºtok", 26, 0, StatusEfekt.Zadny, 0, 1, false, false, true)); //17
+        databazeUtoku.Add(new Utok("SilnÃ½ Ãºtok", 31, 0, StatusEfekt.Zadny, 0, 1, false, false, true)); //18
+        databazeUtoku.Add(new Utok("SilnÄ›jÅ¡Ã­ Ãºtok", 33, 0, StatusEfekt.Zadny, 0, 1, false, false, true)); //19
+        databazeUtoku.Add(new Utok("NejsilnÄ›jÅ¡Ã­ Ãºtok", 35, 0, StatusEfekt.Zadny, 0, 1, false, false, false)); //20
+        databazeUtoku.Add(new Utok("Ãštok na oba", 27, 0, StatusEfekt.Zadny, 0, 1, true, false, false)); //21
     }
 
-    // Zde jsou metody, které vrací informace o daném útoku
+    // Zde jsou metody, kterÃ© vracÃ­ informace o danÃ©m Ãºtoku
     public string GetNazev(int idUtoku)
     {
         return databazeUtoku[idUtoku].nazev;
