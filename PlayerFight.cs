@@ -59,6 +59,8 @@ public class PlayerFight : MonoBehaviour
     public void StartPlayer(AttackHandler a) // spustí se při začátku souboje
     {
         FightAttackHandler = a;
+        MaxHP = Mathf.RoundToInt(10 * Mathf.Pow((1.082f),(Level-1)));
+        MaxStamina = Mathf.RoundToInt(20+(1.03f*(Level-1)));
         Stamina = MaxStamina;
         CurrentHP = MaxHP;
         SmoothStamina = Stamina;
@@ -102,10 +104,14 @@ public class PlayerFight : MonoBehaviour
         {
             aktualniStatus = FightAttackHandler.GetStatus(attackindex); // nastavení statusu
         }
-        float multi = Guard ? 0.7f : 1; // pokud se brání, dostane pouze 70% poškození
+        float gu = Guard ? 0.7f : 1; // pokud se brání, dostane pouze 70% poškození
         int damage = FightAttackHandler.GetDamage(attackindex);
-        int vypocet = Mathf.FloorToInt((damage + (damage * (lvl * 0.2f))) * multi); // výpočet poškození
-        CurrentHP -= vypocet;
+        //int vypocet = Mathf.RoundToInt((damage + (damage * (lvl * 0.2f))) * gu); // starý výpočet poškození
+        int vypocet = Mathf.RoundToInt(Mathf.Pow((Mathf.Abs((float)damage) / 10f),(1+ (float)lvl / 20f)) * gu); // výpočet poškození
+        if (damage != 0)
+        {
+            CurrentHP -= vypocet * (damage / Mathf.Abs(damage)); // přidá výpočtu záporné znaménko, pokud útok léčí
+        }
         CurrentHP = Mathf.Clamp(CurrentHP, 0, MaxHP); //ubrání životů
         SetGUI();
         if (CurrentHP <= 0) // pokud byl hráč poražen
@@ -114,9 +120,9 @@ public class PlayerFight : MonoBehaviour
             Defeat();
 
         }
-        else
+        else  // pokud nebyl poražen
         {
-            if (damage > 0) // pokud nebyl poražen
+            if (damage > 0)
             {
                 Efekt(Color.red, vypocet.ToString().TrimStart('-'), 0f); // ukáže efekt ubrání životů
                 if (!FightAttackHandler.GetIsForMoreEnemies(attackindex))
@@ -267,7 +273,7 @@ public class PlayerFight : MonoBehaviour
     }
     public void RegenerateStamina() // regenerace energie při bránění
     {
-        Stamina += Mathf.Clamp(Mathf.FloorToInt(MaxStamina / 5),0,MaxStamina);
+        Stamina += Mathf.Clamp(5,0,MaxStamina);
     }
     void Efekt(Color barva, string text, float cas) // spouští efekt
     {
