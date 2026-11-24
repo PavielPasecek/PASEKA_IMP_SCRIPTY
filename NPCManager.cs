@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ProBuilder.Shapes;
+using UnityEngine.AI;
 
 public class NPCManager : MonoBehaviour
 {
@@ -10,8 +11,12 @@ public class NPCManager : MonoBehaviour
     public List<Transform> StartPoint;
     public List<Transform> MidPoint;
     public List<Transform> EndPoint;
+
+    //List<Vector3> PlayerCheckpoints;
+    NavMeshAgent agent;
     void Start()
     {
+        //PlayerCheckpoints = new List<Vector3>();
         foreach (Transform NPC in transform)
         {
             NPCChovani script = NPC.gameObject.GetComponent<NPCChovani>();
@@ -40,7 +45,12 @@ public class NPCManager : MonoBehaviour
                     animator.Play("Idle");
                     break;
             }
+            if (script.FollowPlayer)
+            {
+                agent = NPC.GetComponent<NavMeshAgent>();
+            }
         }
+        
     }
 
     void MoveNPC(float speed,NPCChovani script, Transform NPC)
@@ -88,14 +98,18 @@ public class NPCManager : MonoBehaviour
     void FollowPlayer(float speed, NPCChovani script, Transform NPC)
     {
         Vector3 playerPos = player.transform.position - Vector3.up;
-        if (player && Vector3.Distance(playerPos, NPC.transform.position) > 3f)
+        float playerDistance = Vector3.Distance(playerPos, NPC.transform.position);
+        
+        if (player && playerDistance > 2f)
         {
-            NPC.gameObject.transform.position = Vector3.MoveTowards(NPC.gameObject.transform.position, playerPos, speed);
-            RotateNPC(NPC, playerPos);
+            agent.isStopped = false;
+            agent.SetDestination(playerPos);
             NPC.gameObject.GetComponent<Animator>().SetFloat("Speed", 1);
+            agent.speed = playerDistance > 8f ? 5f : 3.5f;
         }
         else
         {
+            agent.isStopped = true;
             NPC.gameObject.GetComponent<Animator>().SetFloat("Speed", 0);
         }
     }
@@ -104,7 +118,7 @@ public class NPCManager : MonoBehaviour
         NPC.gameObject.transform.LookAt(new Vector3(pos.x, NPC.gameObject.transform.position.y, pos.z));
     }
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         foreach (Transform NPC in transform)
         {
