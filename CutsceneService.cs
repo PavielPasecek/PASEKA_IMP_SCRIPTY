@@ -15,8 +15,10 @@ public class SceneDialog
     public Vector3 CameraLook; // směr kamery 
     public bool AnimationTrigger; // pokud má přehrát animaci na postavě
     public int SpecialIndex; // pro speciální efekty
-    public SpecialEffectsService SpecialActor; // objekt speciálního efektu
-    public Transform actorTransform;
+    public bool ChangePos; // pozice
+    public Vector3 Position;
+    public bool ChangeRot; // rotace
+    public Vector3 Rotation;
 }
 [System.Serializable]
 public class Scene
@@ -50,12 +52,20 @@ public class CutsceneService : MonoBehaviour
     public SoundService soundService;
 
     public int StartCutscene = -1;
+    public int CollisionCutscene = -1;
+    public SpecialEffectsService specialEffectService;
+
+    PlayerController playerscript;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (StartCutscene != -1)
         {
             PlayCutscene(StartCutscene);
+        }
+        else
+        {
+            PlayDarkIn();
         }
     }
 
@@ -75,7 +85,10 @@ public class CutsceneService : MonoBehaviour
                 else
                 {
                     Transition.gameObject.SetActive(false);
-                    LoadDialog();
+                    if (DoSomethingAfterTransition)
+                    {
+                        LoadDialog();
+                    }
                 }
             }
             else if (IsDialogEnding)
@@ -115,6 +128,14 @@ public class CutsceneService : MonoBehaviour
             if (scene.NextPartIndex == 0) // Nechá po scéně hráče ovládat postavu
             {
                 TurnOffCamera();
+                if (scene.NextPart != null)
+                {
+                    PlayDarkIn();
+                    playerscript = scene.NextPart.GetComponent<PlayerController>();
+                    playerscript.MainCamera.gameObject.SetActive(true);
+                    Cursor.lockState = CursorLockMode.Locked;
+                    playerscript.isInFight = false;
+                }
             }
             else if (scene.NextPartIndex == 1) // Spustí po scéně souboj
             {
@@ -122,7 +143,7 @@ public class CutsceneService : MonoBehaviour
                 scene.NextPart.GetComponent<FightHandler>().StartFight();
                 FightUI.SetActive(true);
             }
-            else if (scene.NextPartIndex >= 10) // Spustí po cutséně scéně další scénu, index scény je NextPartIndex - 10
+            else if (scene.NextPartIndex >= 10) // Spustí po cutséně další scénu, index scény je NextPartIndex - 10
             {
                 SceneManager.LoadScene(scene.NextPartIndex - 10);
             }
@@ -149,14 +170,22 @@ public class CutsceneService : MonoBehaviour
             EndDialog();
             return;
         }
+        Cursor.lockState = CursorLockMode.None;
         SceneDialog currentDialog = scene.dialogList[DialogIndex];
         if (currentDialog == null) return;
         mainCamera.transform.position = currentDialog.CameraPos;
         mainCamera.transform.LookAt(currentDialog.CameraLook);
-        if (currentDialog.actorTransform != null)
+        if (currentDialog.ChangePos)
         {
-            currentDialog.actor.transform.position = currentDialog.actorTransform.position;
-            currentDialog.actor.transform.rotation = currentDialog.actorTransform.rotation;
+            currentDialog.actor.transform.position = currentDialog.Position;
+        }
+        if (currentDialog.ChangeRot)
+        {
+            currentDialog.actor.transform.rotation = Quaternion.Euler(currentDialog.Rotation);
+        }
+        if (currentDialog.SpecialIndex > 0)
+        {
+            specialEffectService.PlaySpecialScene(currentDialog.SpecialIndex);
         }
         Dialog.Dialog(currentDialog.ActorName, currentDialog.Text, currentDialog.DialogIconNum);
         if (currentDialog.actor)
@@ -165,8 +194,11 @@ public class CutsceneService : MonoBehaviour
             if (actorAnimations)
             {
                 Dialog.Dialog3DAnimation(actorAnimations);
-            }
-                
+            }     
+        }
+        else
+        {
+            Dialog.Dialog3DAnimation(null);
         }
     }
     void PrepareDialog()
@@ -179,7 +211,10 @@ public class CutsceneService : MonoBehaviour
         mainCamera.transform.LookAt(currentDialog.CameraLook);
         foreach (GameObject actor in scene.actors)
         {
-            actor.SetActive(true);
+            if (actor != null)
+            {
+                actor.SetActive(true);
+            }
         }
     }
     public void PlayCutscene(int sceneIndex)
@@ -190,6 +225,7 @@ public class CutsceneService : MonoBehaviour
         }
         transitionTime = 3f;
         isDialogPlaying = true;
+        DoSomethingAfterTransition = true;
         DialogIndex = 0;
         SceneIndex = sceneIndex;
         PrepareDialog();
@@ -203,10 +239,18 @@ public class CutsceneService : MonoBehaviour
         transitionTime = 2f;
         DoSomethingAfterTransition = false;
     }
+    public void PlayDarkIn()
+    {
+        isDialogPlaying = true;
+        IsDialogEnding = false;
+        IsTransition = true;
+        transitionTime = 2f;
+        DoSomethingAfterTransition = false;
+    }
 
     public void Next()
     {
-        if (isDialogPlaying)
+        if (isDialogPlaying && !IsTransition)
         {
             DialogIndex++;
             LoadDialog();
@@ -216,5 +260,30 @@ public class CutsceneService : MonoBehaviour
     public void PlayTalkSound()
     {
         soundService.PlayTalkSound();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            GameObject player = other.gameObject;
+            playerscript = player.GetComponent<PlayerController>();
+            if (!playerscript.isInFight)
+            {
+                gameObject.GetComponent<Collider>().enabled = false;
+                playerscript.GoInFight();
+                PlayDark();
+                Invoke("PlayCollisionCutscene", 4f);
+            }
+        }
+    }
+
+    void PlayCollisionCutscene()
+    {
+        PlayCutscene(CollisionCutscene);
+        if (playerscript != null)
+        {
+            playerscript.MainCamera.gameObject.SetActive(false);
+        }
     }
 }
