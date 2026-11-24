@@ -100,7 +100,7 @@ public class FightHandler : MonoBehaviour
     }
     void CreateFightMembers()
     {
-        // Pøídá všechny èleny teamu a protivníky do listu FightMembers
+        // PÅ™Ã­dÃ¡ vÅ¡echny Äleny teamu a protivnÃ­ky do listu FightMembers
         FightMembers = new List<GameObject>();
         Heroes = new List<GameObject>();
         if (MakiModel != null) Heroes.Add(MakiModel);
@@ -111,13 +111,11 @@ public class FightHandler : MonoBehaviour
         {
             FightMembers.Add(hero);
             hero.GetComponent<PlayerFight>().StartPlayer(FightAttackHandler);
-            hero.SetActive(false);
         }
         foreach (GameObject enemy in Enemies)
         {
             FightMembers.Add(enemy);
             enemy.GetComponent<EnemyFight>().StartEnemy(FightAttackHandler);
-            enemy.SetActive(false);
         }
     }
 
@@ -151,7 +149,7 @@ public class FightHandler : MonoBehaviour
             hero.GetComponent<PlayerFight>().SetPlayerUI(UI[0],UI[1], UI[2], UI[3], UI[4], UI[5]);
         }
     }
-    void HandleButtonPresses() // pro ovládání souboje pøes klávesnici a herní ovladaè
+    void HandleButtonPresses() // pro ovlÃ¡dÃ¡nÃ­ souboje pÅ™es klÃ¡vesnici a hernÃ­ ovladaÄ
     {
         if (Input.GetKeyDown(KeyCode.W))
         {
@@ -181,38 +179,38 @@ public class FightHandler : MonoBehaviour
 
     void Update()
     {
-        if (isDefeated)
+        if (isDefeated) // spustÃ­ animaci prohry
         {
             HandleGameOverAnimation();
         }
-        if (!IsRunning || FightEnded) return;
+        if (!IsRunning || FightEnded) return; // pokud souboj nebÄ›Å¾Ã­, nic se neprovede
 
-        if (currentState != AttackState.Idle) // pokud postava nestojí na místì, provede se pohyb
+        if (currentState != AttackState.Idle) // pokud postava nestojÃ­ na mÃ­stÄ›, provede se pohyb
         {
             HandleAttackMovement();
             return;
         }
-        GameObject currentCharacter = FightMembers[Turn % FightMembers.Count]; // zjistí, kdo je na tahu
-        HandleButtonPresses(); // kontroluje stisknutí kláves
-        if (!turnInitialized) // zjistí, jestli byl tah inicializován (tato èást kódu se provede vdy jednou na zaèátku tahu)
+        GameObject currentCharacter = FightMembers[Turn % FightMembers.Count]; // zjistÃ­, kdo je na tahu
+        HandleButtonPresses(); // kontroluje stisknutÃ­ klÃ¡ves
+        if (!turnInitialized) // zjistÃ­, jestli byl tah inicializovÃ¡n (tato ÄÃ¡st kÃ³du se provede vÅ¾dy jednou na zaÄÃ¡tku tahu)
         {
-            turnInitialized = true;
+            turnInitialized = true; // inicializuje Ãºtok
             SkryjSelectedSipky();
             activeAttacker = currentCharacter;
 
-            if (Heroes.Contains(currentCharacter)) // pokud útoèí hráè
+            if (Heroes.Contains(currentCharacter)) // pokud ÃºtoÄÃ­ hrÃ¡Ä
             {
-                cameraHandler.SetView(CameraView.Idle,currentCharacter, currentCharacter); // nastaví kameru
+                cameraHandler.SetView(CameraView.Idle,currentCharacter, currentCharacter); // nastavÃ­ kameru
                 print("ZacatekTahuHrace");
                 currentCharacter.GetComponent<PlayerFight>().Guard = false; // vyresetuje obranu
-                if (currentCharacter.GetComponent<PlayerFight>().CurrentHP <= 0) // pokud je poraenı, pøeskoèí se na dalšího
+                if (currentCharacter.GetComponent<PlayerFight>().CurrentHP <= 0) // pokud je poraÅ¾enÃ½, pÅ™eskoÄÃ­ se na dalÅ¡Ã­ho
                 {
                     NextTurn();
                     return;
                 }
-                guiHandler.StartTurnSequence(currentCharacter);// vyresetuje GUI
+                guiHandler.StartTurnSequence(currentCharacter);// vyresetuje a spustÃ­ GUI hrÃ¡Äe
             }
-            else // Pokud je na øadì protivník, udìlá to témìø to samé
+            else // Pokud je na Å™adÄ› protivnÃ­k, udÄ›lÃ¡ tÃ©mÄ›Å™ to samÃ©
             {
                 cameraHandler.SetView(CameraView.Idle, activeAttacker, activeAttacker);
                 if (currentCharacter.GetComponent<EnemyFight>().CurrentHP <= 0)
@@ -222,16 +220,16 @@ public class FightHandler : MonoBehaviour
                 }
                 currentCharacter.GetComponent<EnemyFight>().Guard = false;
                 currentCharacter.GetComponent<EnemyFight>().Enemies = Heroes;
-                currentCharacter.GetComponent<EnemyFight>().ChooseAttack(); // vyšle metodu, aby si protivník vybral útok
+                currentCharacter.GetComponent<EnemyFight>().ChooseAttack(); // vyÅ¡le metodu, kterÃ¡ spustÃ­ vÃ½bÄ›r Ãºtoku protivnÃ­ka
             }
         }
     }
 
-    void HandleAttackMovement() // tuto metodu na pohyb postavy pøed útokem vytvoøila umìlá inteligence Gemini, QTE jsem pøidal sám bez pomoci
+    void HandleAttackMovement() // tuto metodu na pohyb postavy pÅ™ed Ãºtokem vytvoÅ™ila umÄ›lÃ¡ inteligence Gemini, QTE jsem pÅ™idal sÃ¡m bez pomoci
     {
         float speed = 5f;
         Vector3 targetPos;
-        if (currentState == AttackState.QTE) // zjistí, jestli má útok QTE
+        if (currentState == AttackState.QTE) // zjistÃ­, jestli mÃ¡ Ãºtok QTE
         {
             if (QTEsent == false)
             {
@@ -239,20 +237,20 @@ public class FightHandler : MonoBehaviour
                 QTEHandler.StartQTE(FightAttackHandler.GetQuickTimeEvent(pendingAttackIndex) == 2);
                 activeAttacker.GetComponent<PlayerFight>().IdleCeka();
             }
-            if (QTEHandler.QTEDone) // zjistí, jestli je QTE hotovı
+            if (QTEHandler.QTEDone) // zjistÃ­, jestli je QTE hotovÃ½
             {
-                if (QTEHandler.QTEFailed) // pokud se nepovedl, udìlá útok slabším
+                if (QTEHandler.QTEFailed) // pokud se nepovedl, udÄ›lÃ¡ Ãºtok slabÅ¡Ã­m
                 {
                     pendingDamageMultiplier = 0.7f;
                 }
-                currentState = AttackState.PerformingAction; // ubere ivoty protivníkovi
+                currentState = AttackState.PerformingAction; // ubere Å¾ivoty protivnÃ­kovi
                 ApplyAttackLogic();
             }
         }
         if (currentState == AttackState.WalkingToTarget)
         {
             float zOffset = isPlayerAttacking ? -1.5f : 1.5f;
-            if (isPlayerAttacking) // nastaví správnı reim kamery
+            if (isPlayerAttacking) // nastavÃ­ sprÃ¡vnÃ½ reÅ¾im kamery
             {
                 cameraHandler.SetView(CameraView.PlayerDash, activeAttacker, activeTarget);
             }
@@ -261,18 +259,18 @@ public class FightHandler : MonoBehaviour
                 cameraHandler.SetView(CameraView.EnemyAction, activeAttacker, activeTarget);
             }
             targetPos = activeTarget.transform.position + new Vector3(0, 0, zOffset);
-            activeAttacker.transform.position = Vector3.MoveTowards(activeAttacker.transform.position, targetPos, speed * Time.deltaTime); // pohne postavou smìrem k vybranému protivníkovi
-            if (Vector3.Distance(activeAttacker.transform.position, targetPos) < 0.05f) // pokud postava došla na vybrané místo
+            activeAttacker.transform.position = Vector3.MoveTowards(activeAttacker.transform.position, targetPos, speed * Time.deltaTime); // pohne postavou smÄ›rem k vybranÃ©mu protivnÃ­kovi
+            if (Vector3.Distance(activeAttacker.transform.position, targetPos) < 0.05f) // pokud postava doÅ¡la na vybranÃ© mÃ­sto
             {
-                if (FightAttackHandler.GetQuickTimeEvent(pendingAttackIndex) != 0 && Heroes.Contains(activeAttacker)) // zjistí, jestli má útok QTE a jestli je to hrdina
+                if (FightAttackHandler.GetQuickTimeEvent(pendingAttackIndex) != 0 && Heroes.Contains(activeAttacker)) // zjistÃ­, jestli mÃ¡ Ãºtok QTE a jestli je to hrdina
                 {
                     currentState = AttackState.QTE;
                 }
-                else // pokud ne, provede útok
+                else // pokud ne, provede Ãºtok
                 {
                     currentState = AttackState.PerformingAction;
                     
-                    if (isPlayerAttacking) // nastaví kameru na hráèe nebo protivkíka, na kterého se právì útoèí
+                    if (isPlayerAttacking) // nastavÃ­ kameru na hrÃ¡Äe nebo protivkÃ­ka, na kterÃ©ho se prÃ¡vÄ› ÃºtoÄÃ­
                     {
                         if (!pendingAttackType)
                         {
@@ -283,19 +281,19 @@ public class FightHandler : MonoBehaviour
                     {
                         cameraHandler.SetView(CameraView.EnemyAction, activeAttacker, activeTarget);
                     }
-                    ApplyAttackLogic(); // ubere ivoty
+                    ApplyAttackLogic(); // ubere Å¾ivoty
                 }
                 
             }
         }
-        else if (currentState == AttackState.ReturningHome) // pokud se vrací zpìt
+        else if (currentState == AttackState.ReturningHome) // pokud se vracÃ­ zpÄ›t
         {
             activeAttacker.transform.position = Vector3.MoveTowards(activeAttacker.transform.position, originalPosition, speed * Time.deltaTime);
 
-            if (Vector3.Distance(activeAttacker.transform.position, originalPosition) < 0.05f) // pokud je zpátky na svém místì
+            if (Vector3.Distance(activeAttacker.transform.position, originalPosition) < 0.05f) // pokud je zpÃ¡tky na svÃ©m mÃ­stÄ›
             {
                 activeAttacker.transform.position = originalPosition;
-                currentState = AttackState.Idle; // vyresetuje mu animace, pozici a status chození 
+                currentState = AttackState.Idle; // vyresetuje mu animace, pozici a status chozenÃ­ 
                 if (Heroes.Contains(activeAttacker))
                 {
                     activeAttacker.GetComponent<PlayerFight>().ResetAnimations();
@@ -304,25 +302,18 @@ public class FightHandler : MonoBehaviour
                 {
                     activeAttacker.GetComponent<EnemyFight>().ResetAnimations();
                 }
-                NextTurn(); // pøedá tah dalšímu
+                NextTurn(); // pÅ™edÃ¡ tah dalÅ¡Ã­mu
             }
         }
-        if (Heroes.Contains(activeAttacker)) // pøehraje animace
+        if (Heroes.Contains(activeAttacker)) // pÅ™ehraje animace chozenÃ­
         {
             if (currentState == AttackState.WalkingToTarget || currentState == AttackState.ReturningHome)
             {
                 activeAttacker.GetComponent<PlayerFight>().WalkAnimace();
             }
         }
-        else
-        {
-            if (currentState == AttackState.WalkingToTarget || currentState == AttackState.ReturningHome)
-            {
-                activeAttacker.GetComponent<EnemyFight>().WalkAnimace();
-            }
-        }
     }
-    void AttackEnemies(bool all) // ubere ivoty všem protivníkùm
+    void AttackEnemies(bool all) // ubere Å¾ivoty vÅ¡em protivnÃ­kÅ¯m
     {
         if (all)
         {
@@ -336,7 +327,7 @@ public class FightHandler : MonoBehaviour
         }
         else
         {
-            if (activeTarget.GetComponent<EnemyFight>().CurrentHP > 0) // ubere ivoty pouze jednomu protivníkovi
+            if (activeTarget.GetComponent<EnemyFight>().CurrentHP > 0) // ubere Å¾ivoty pouze jednomu protivnÃ­kovi
             {
                 activeTarget.GetComponent<EnemyFight>().TakeDamage(pendingAttackIndex, pendingLvl, pendingDamageMultiplier, pendingStatusEffect);
             }
@@ -346,7 +337,7 @@ public class FightHandler : MonoBehaviour
     {
         if (all)
         {
-            foreach (GameObject teammate in Heroes) // vyléèí všechny hrdiny
+            foreach (GameObject teammate in Heroes) // vylÃ©ÄÃ­ vÅ¡echny hrdiny
             {
                 if (teammate.GetComponent<PlayerFight>().CurrentHP > 0)
                 {
@@ -387,30 +378,32 @@ public class FightHandler : MonoBehaviour
             }
         }
     }
-    void ApplyAttackLogic() // vypoèítá útoku a ubere ivoty
+    void ApplyAttackLogic() // vypoÄÃ­tÃ¡ Ãºtoku a ubere Å¾ivoty
     {
-        if (FightAttackHandler.GetDamage(pendingAttackIndex) > 0) // zatøese kamerou
+        if (FightAttackHandler.GetDamage(pendingAttackIndex) > 0) // zatÅ™ese kamerou
         {
             cameraHandler.TriggerShake(0.5f);
         }
-        if (isPlayerAttacking) // pokud útoèí hráè
+        soundService.PlayBattleSound(pendingAttackIndex);
+        if (isPlayerAttacking) // pokud ÃºtoÄÃ­ hrÃ¡Ä
         {
-            activeAttacker.GetComponent<PlayerFight>().SpustAttackAnimaci(pendingAttackIndex,activeTarget); // spustí animace a ubere energii
+            activeAttacker.GetComponent<PlayerFight>().SpustAttackAnimaci(pendingAttackIndex,activeTarget); // spustÃ­ animace a ubere energii
             activeAttacker.GetComponent<PlayerFight>().Stamina -= pendingStaminaCost;
             activeAttacker.GetComponent<PlayerFight>().SetGUI();
             TakeDamage(true, pendingAttackType, pendingMoreEnemies);
+            
         }
-        else // pokud útoèí protivník, logika je úplnì stejná
+        else // pokud ÃºtoÄÃ­ protivnÃ­k, logika je ÃºplnÄ› stejnÃ¡
         {
             activeAttacker.GetComponent<EnemyFight>().SpustAttackAnimaci(pendingAttackIndex);
             activeAttacker.GetComponent<EnemyFight>().Stamina -= pendingStaminaCost;
             TakeDamage(false, pendingAttackType, pendingMoreEnemies);
         }
-        if (activeTarget) // zapíše log do konzole
+        if (activeTarget) // zapÃ­Å¡e log do konzole
         {
-            Debug.Log(activeAttacker.name + " udeøil " + activeTarget.name);
+            Debug.Log(activeAttacker.name + " udeÅ™il " + activeTarget.name);
         }
-        Invoke("StartReturning", 2f);// zavolá metodu na vrácení se zpìt, pokud postava chodila
+        Invoke("StartReturning", 2f);// zavolÃ¡ metodu na vrÃ¡cenÃ­ se zpÄ›t, pokud postava chodila
     }
 
     void StartReturning()
@@ -418,7 +411,7 @@ public class FightHandler : MonoBehaviour
         currentState = AttackState.ReturningHome;
     }
 
-    void CheckFightEnd() // zjistí, jestli souboj skonèíl
+    void CheckFightEnd() // zjistÃ­, jestli souboj skonÄÃ­l
     {
         int pocetPorazenych = 0;
         foreach (GameObject enemy in Enemies)
@@ -428,7 +421,7 @@ public class FightHandler : MonoBehaviour
                 pocetPorazenych++;
             }
         }
-        if (pocetPorazenych == Enemies.Count) // zjistí, jestli jsou poraení všichni protivníci
+        if (pocetPorazenych == Enemies.Count) // zjistÃ­, jestli jsou poraÅ¾enÃ­ vÅ¡ichni protivnÃ­ci
         {
             EndFight(true);
         }
@@ -441,22 +434,22 @@ public class FightHandler : MonoBehaviour
                 hero.GetComponent<PlayerFight>().CharacterModel.GetComponent<Animations>().canBlink = false;
             }
         }
-        if (pocetPorazenych == Heroes.Count)  // zjistí, jestli jsou poraení všichni hrdinové
+        if (pocetPorazenych == Heroes.Count)  // zjistÃ­, jestli jsou poraÅ¾enÃ­ vÅ¡ichni hrdinovÃ©
         {
             EndFight(false);
         }
     }
 
-    public void PlayerChoseAttack(int idUtoku, bool naKoho, int indexCile, GameObject postava) // provede útok
+    public void PlayerChoseAttack(int idUtoku, bool naKoho, int indexCile, GameObject postava) // provede Ãºtok
     {
-        if (idUtoku == -1) // Obrana, ádnú utok se neprovede
+        if (idUtoku == -1) // Obrana, Å¾Ã¡dnÃº utok se neprovede
         {
             postava.GetComponent<PlayerFight>().RegenerateStamina();
             postava.GetComponent<PlayerFight>().Guard = true;
             NextTurn();
             return;
         }
-        // uloí informace o útoku
+        // uloÅ¾Ã­ informace o Ãºtoku
         activeAttacker = postava;
         isPlayerAttacking = true;
         originalPosition = postava.transform.position;
@@ -470,21 +463,21 @@ public class FightHandler : MonoBehaviour
         QTEsent = false;
         SkryjSelectedSipky();
 
-        if (indexCile != 0)// zjistí, na koho má otoèit kameru
+        if (indexCile != 0)// zjistÃ­, na koho mÃ¡ otoÄit kameru
         {
             activeTarget = naKoho ? Enemies[indexCile - 1] : Heroes[indexCile - 1];
         }
-        else // pokud má otoèit kameru na všechny, vybere si jednoho, na kterého ji otoèí
+        else // pokud mÃ¡ otoÄit kameru na vÅ¡echny, vybere si jednoho, na kterÃ©ho ji otoÄÃ­
         {
             activeTarget = naKoho ? Enemies[Random.Range(0,Enemies.Count)] : Heroes[Random.Range(0, Heroes.Count)];
         }
-        if (FightAttackHandler.GetWalkingAnimation(idUtoku)) // pøehraje chodící animaci, pokud ji má
+        if (FightAttackHandler.GetWalkingAnimation(idUtoku)) // pÅ™ehraje chodÃ­cÃ­ animaci, pokud ji mÃ¡
         {
             currentState = AttackState.WalkingToTarget;
         }
         else
         {
-            if (!pendingAttackType) // nastaví kameru
+            if (!pendingAttackType) // nastavÃ­ kameru
             {
                 cameraHandler.SetView(CameraView.ImpactOnFarEnemy, activeAttacker, activeTarget);
             }
@@ -492,32 +485,32 @@ public class FightHandler : MonoBehaviour
             {
                 cameraHandler.SetView(CameraView.Idle, activeAttacker, activeAttacker);
             }
-            if (FightAttackHandler.GetQuickTimeEvent(idUtoku) != 0) // zjistí, jestli má útok QTE
+            if (FightAttackHandler.GetQuickTimeEvent(idUtoku) != 0) // zjistÃ­, jestli mÃ¡ Ãºtok QTE
             {
                 currentState = AttackState.QTE;
             }
             else
             {
-                ApplyAttackLogic(); // pokud nechodí, ani nemá QTE, aplikuje útok
+                ApplyAttackLogic(); // pokud nechodÃ­, ani nemÃ¡ QTE, aplikuje Ãºtok
             }      
         }
     }
 
-    public void EnemyChoseAttack(int idUtoku, GameObject cil, GameObject attacker) // vıbìr útoku protivníka
+    public void EnemyChoseAttack(int idUtoku, GameObject cil, GameObject attacker) // vÃ½bÄ›r Ãºtoku protivnÃ­ka
     {
         activeAttacker = attacker;
         isPlayerAttacking = false;
         originalPosition = attacker.transform.position;
         activeTarget = cil;
 
-        if (idUtoku == -1) // Obrana, vynechá útok a regeneruje staminu
+        if (idUtoku == -1) // Obrana, vynechÃ¡ Ãºtok a regeneruje staminu
         {
             attacker.GetComponent<EnemyFight>().RegenerateStamina();
             attacker.GetComponent<EnemyFight>().Guard = true;
             NextTurn();
             return;
         }
-        // uloí informace o útoku do promìnnıch
+        // uloÅ¾Ã­ informace o Ãºtoku do promÄ›nnÃ½ch
         pendingAttackIndex = idUtoku;
         pendingLvl = attacker.GetComponent<EnemyFight>().Level;
         pendingStaminaCost = FightAttackHandler.Stamina(idUtoku);
@@ -527,30 +520,30 @@ public class FightHandler : MonoBehaviour
         pendingDamageMultiplier = 1f;
         pendingStatusEffect = attacker.GetComponent<EnemyFight>().aktualniStatus;
 
-        if (FightAttackHandler.GetWalkingAnimation(idUtoku)) // pokud má útok chodící animaci, pøehraje ji
+        if (FightAttackHandler.GetWalkingAnimation(idUtoku)) // pokud mÃ¡ Ãºtok chodÃ­cÃ­ animaci, pÅ™ehraje ji
         {
             currentState = AttackState.WalkingToTarget;
         }
         else
         {
-            ApplyAttackLogic(); // jinak aplikuje útoku
+            ApplyAttackLogic(); // jinak aplikuje Ãºtoku
         }
     }
 
-    private void NextTurn() // pøedá tah další postavì
+    private void NextTurn() // pÅ™edÃ¡ tah dalÅ¡Ã­ postavÄ›
     {
         CheckFightEnd();
         Turn++;
         turnInitialized = false;
     }
 
-    public void SkryjSelectedSipky() // skryje šipky, které urèují vybraného protivníka
+    public void SkryjSelectedSipky() // skryje Å¡ipky, kterÃ© urÄujÃ­ vybranÃ©ho protivnÃ­ka
     {
         foreach (GameObject m in Heroes) m.GetComponent<PlayerFight>().SelectIndicator.SetActive(false);
         foreach (GameObject e in Enemies) e.GetComponent<EnemyFight>().SelectIndicator.SetActive(false);
     }
 
-    public void UkazSelectedSipky(int id, bool jeHrac) // ukáe šipky nad vybranou postavou
+    public void UkazSelectedSipky(int id, bool jeHrac) // ukÃ¡Å¾e Å¡ipky nad vybranou postavou
     {
         if (jeHrac)
         {
@@ -581,11 +574,11 @@ public class FightHandler : MonoBehaviour
             playerCharacter = character;
             playerCharacter.GetComponent<PlayerController>().GoInFight();
         }
-        soundService.PlayMusic();
+        soundService.PlayMusic(isBossfight);
         guiHandler.PlayStartAnimation();
         Invoke("FightZacal", 1.6f);
     }
-    private void OnTriggerEnter(Collider other) // zjistí, jestli se hráè dotkl místa, které zaène souboj
+    private void OnTriggerEnter(Collider other) // zjistÃ­, jestli se hrÃ¡Ä dotkl mÃ­sta, kterÃ© zaÄne souboj
     {
         if (other.CompareTag("Player") && !IsRunning && !FightEnded)
         {
@@ -601,11 +594,10 @@ public class FightHandler : MonoBehaviour
     {
         foreach (GameObject enemy in OverworldEnemies)
         {
-            enemy.GetComponent<Animator>().SetLayerWeight(enemy.GetComponent<Animator>().GetLayerIndex("Fight"), 1);
-            enemy.GetComponent<Animator>().SetBool("Defeat", true);
+            enemy.SetActive(false);
         }
 
-        if (AfterFight == 0) // Vrátí hráèe do scény
+        if (AfterFight == 0) // VrÃ¡tÃ­ hrÃ¡Äe do scÃ©ny
         {
             cameraHandler.StopFightCamera();
             Cursor.lockState = CursorLockMode.Locked;
@@ -613,7 +605,7 @@ public class FightHandler : MonoBehaviour
             playerCharacter.GetComponent<PlayerController>().isInFight = false;
 
         }
-        else if (AfterFight == 1) // Spustí cutscénu
+        else if (AfterFight == 1) // SpustÃ­ cutscÃ©nu
         {
             cameraHandler.StopFightCamera();
             cutsceneService.PlayCutscene(AfterFightIndex);
@@ -621,8 +613,9 @@ public class FightHandler : MonoBehaviour
     }
 
 
-    void EndFight(bool vyhralHrac) // ukonèí souboj
+    void EndFight(bool vyhralHrac) // ukonÄÃ­ souboj
     {
+        soundService.StopMusic();
         if (vyhralHrac)
         {
             FightEnded = true;
@@ -631,7 +624,7 @@ public class FightHandler : MonoBehaviour
             {
                 Invoke("AfterWinScene", 5f);
             }
-            else if (AfterFight == 1) // Spustí cutscénu
+            else if (AfterFight == 1) // SpustÃ­ cutscÃ©nu
             {
                 Invoke("PlayDark", 3f);
                 Invoke("AfterWinScene", 5.1f);
@@ -639,6 +632,7 @@ public class FightHandler : MonoBehaviour
         }
         else
         {
+            soundService.GameOverSound();
             FightEnded = true;
             cameraHandler.SetView(CameraView.Defeat, MakiModel, MakiModel);
             isDefeated = true;
