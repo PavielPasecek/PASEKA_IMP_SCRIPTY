@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Animations : MonoBehaviour
 {
@@ -49,7 +49,7 @@ public class Animations : MonoBehaviour
         {
             obj.gameObject.SetActive(false);
         }
-        
+
     }
 
     void HideAllEmotions()
@@ -58,7 +58,7 @@ public class Animations : MonoBehaviour
         {
             obj.gameObject.SetActive(false);
         }
-        
+
     }
 
 
@@ -99,7 +99,7 @@ public class Animations : MonoBehaviour
                 }
                 else if (BlinkCooldown < 0)
                 {
-                    BlinkCooldown = Random.Range(10,15);
+                    BlinkCooldown = Random.Range(10, 15);
                     HideAllBlinking();
                     AroundEyes.gameObject.SetActive(true);
                 }
@@ -137,10 +137,10 @@ public class Animations : MonoBehaviour
                 Mouths[0].gameObject.SetActive(true);
                 Emotions[1].gameObject.SetActive(true);
             }
-            else if (num == 3 || num == 7)
+            else if (num == 3 || num == 6)
             {
                 Mouths[0].gameObject.SetActive(true);
-                Emotions[2].gameObject.SetActive(true);
+                Emotions[3].gameObject.SetActive(true);
             }
             else
             {
@@ -152,42 +152,32 @@ public class Animations : MonoBehaviour
         {
             HideAllMouths();
             HideAllEmotions();
-            if (num == 1 || num == 5 || num == 7)
+            if (num == 8)
             {
                 Mouths[0].gameObject.SetActive(true);
-                Emotions[2].gameObject.SetActive(true);
-            }
-            else if (num == 2 || num == 4)
-            {
-                Mouths[0].gameObject.SetActive(true);
-                Emotions[1].gameObject.SetActive(true);
-            }
-            else if (num == 3 || num == 7)
-            {
-                Mouths[0].gameObject.SetActive(true);
-                Emotions[2].gameObject.SetActive(true);
+                Emotions[0].gameObject.SetActive(true);
             }
             else
             {
                 Mouths[0].gameObject.SetActive(true);
-                Emotions[0].gameObject.SetActive(true);
+                Emotions[1].gameObject.SetActive(true);
             }
         }
         else if (Postava == Postavy.Otec)
         {
             HideAllMouths();
             HideAllEmotions();
-            if (num == 1 || num == 5 || num == 7)
+            if (num == 11)
+            {
+                Mouths[0].gameObject.SetActive(true);
+                Emotions[0].gameObject.SetActive(true);
+            }
+            else if (num == 12)
             {
                 Mouths[0].gameObject.SetActive(true);
                 Emotions[1].gameObject.SetActive(true);
             }
-            else if (num == 2 || num == 4)
-            {
-                Mouths[0].gameObject.SetActive(true);
-                Emotions[1].gameObject.SetActive(true);
-            }
-            else if (num == 3 || num == 7)
+            else if (num == 13 || num == 7)
             {
                 Mouths[0].gameObject.SetActive(true);
                 Emotions[2].gameObject.SetActive(true);
